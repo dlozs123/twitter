@@ -9,8 +9,24 @@ async function loadData() {
     }
 }
 
+// 把会导致文件名或 URL 问题的字符替换为下划线，合并重复下划线并去掉首尾下划线/空白
+function sanitizeFileName(name) {
+    if (!name) return '';
+    return String(name)
+        // 替换 Windows/URL 常见的危险字符为下划线（你可以按需增减）
+        .replace(/[\/\\\?\%\*\:\|\"<>\#\&\+\=\;\,]/g, '_')
+        // 合并连续下划线
+        .replace(/_+/g, '_')
+        // 去掉首尾空白
+        .replace(/^\s+|\s+$/g, '')
+        // 去掉首尾下划线
+        .replace(/^_+|_+$/g, '');
+}
+
 function getIconUrl(userName) {
-    return `https://r4.dlozs.top/images/${userName}.jpg`;
+    const safeName = sanitizeFileName(userName) || 'unknown';
+    // 只对文件名部分进行编码，避免破坏 URL 结构
+    return `https://r4.dlozs.top/images/${encodeURIComponent(safeName)}.jpg`;
 }
 
 function getImageUrl(screenName, tweetId, index, createdAt) {
@@ -19,7 +35,10 @@ function getImageUrl(screenName, tweetId, index, createdAt) {
     const mm = String(date.getMonth() + 1).padStart(2, '0');
     const dd = String(date.getDate()).padStart(2, '0');
     const dateStr = `${yyyy}${mm}${dd}`;
-    return `https://r3.dlozs.top/${screenName}_${tweetId}_photo_${index + 1}_${dateStr}.jpg`;
+
+    const safeScreen = sanitizeFileName(screenName || 'unknown');
+    const fileName = `${safeScreen}_${tweetId}_photo_${index + 1}_${dateStr}.jpg`;
+    return `https://r3.dlozs.top/${encodeURIComponent(fileName)}`;
 }
 
 function formatDate(createdAt) {
