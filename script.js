@@ -9,23 +9,32 @@ async function loadData() {
     }
 }
 
-// 把会导致文件名或 URL 问题的字符替换为下划线，合并重复下划线并去掉首尾下划线/空白
+// 只针对已知出错的几个特殊文件名做硬编码处理
 function sanitizeFileName(name) {
     if (!name) return '';
-    return String(name)
-        // 替换 Windows/URL 常见的危险字符为下划线（你可以按需增减）
-        .replace(/[\/\\\?\%\*\:\|\"<>\#\&\+\=\;\,]/g, '_')
-        // 合并连续下划线
-        .replace(/_+/g, '_')
-        // 去掉首尾空白
-        .replace(/^\s+|\s+$/g, '')
-        // 去掉首尾下划线
-        .replace(/^_+|_+$/g, '');
+
+    // 特殊名单映射：输入 → 正确文件名
+    const specialMap = {
+        "静@_(:3」∠)_": "静@_(:3」∠)_",
+        "れこ / Re:": "れこ _ Re_",
+        ":P": "_P",
+        "野愛におし@アシスタリアン連載中+他連載準備中: "野愛におし@アシスタリアン連載中+他連載準備中",
+        "ram🐏=3": "ram🐏=3",
+        "ぎヴちょこ＠こみトレ46 _Ｊ15a_": ぎヴちょこ＠こみトレ46 _Ｊ15a_",
+        "H.B.K@冬コミ&ARプロジェクト": "H.B.K@冬コミ&ARプロジェクト",
+        // 如果未来有更多特殊情况，可在这里添加
+        // "原始输入": "期望输出",
+    };
+
+    // 如果在特殊名单里，直接返回映射值
+    if (specialMap[name]) return specialMap[name];
+
+    // 其他名字保持原样
+    return name;
 }
 
 function getIconUrl(userName) {
     const safeName = sanitizeFileName(userName) || 'unknown';
-    // 只对文件名部分进行编码，避免破坏 URL 结构
     return `https://r4.dlozs.top/images/${encodeURIComponent(safeName)}.jpg`;
 }
 
@@ -43,7 +52,13 @@ function getImageUrl(screenName, tweetId, index, createdAt) {
 
 function formatDate(createdAt) {
     const date = new Date(createdAt);
-    return date.toLocaleString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
 }
 
 async function loadUsers() {
