@@ -30,7 +30,7 @@ function getMediaUrl(screenName, tweetId, index, createdAt, mediaItem) {
         }
     }
 
-    return `https://r3.dlozs.top/${screenName}_${tweetId}_photo_${index + 1}_${dateStr}.${ext}`;
+    return `https://r3.dlozs.top/${screenName}_${tweetId}_${mediaItem.type}_${index + 1}_${dateStr}.${ext}`;
 }
 
 function formatDate(createdAt) {
