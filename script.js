@@ -21,7 +21,7 @@ function getMediaUrl(screenName, tweetId, index, createdAt, mediaItem) {
     const dateStr = `${yyyy}${mm}${dd}`;
 
     let ext = 'jpg'; // 默认
-    if (mediaItem.type === 'video') {
+    if (mediaItem.type === 'video' || mediaItem.type === 'animated_gif') {
         ext = 'mp4';
     } else if (mediaItem.original) {
         const match = mediaItem.original.match(/format=([^&]+)/);
@@ -86,9 +86,10 @@ async function loadUserTweets() {
             mediaHtml = '<div class="tweet-media">';
             tweet.media.forEach((mediaItem, index) => {
                 const mediaUrl = getMediaUrl(tweet.screen_name, tweet.id, index, tweet.created_at, mediaItem);
-                if (mediaItem.type === 'video') {
+                if (mediaItem.type === 'video' || mediaItem.type === 'animated_gif') {
+                    const loopAttr = mediaItem.type === 'animated_gif' ? 'loop' : '';
                     mediaHtml += `
-                        <video controls width="100%" alt="Tweet video ${index + 1}">
+                        <video controls ${loopAttr} width="100%" alt="Tweet video ${index + 1}">
                             <source src="${mediaUrl}" type="video/mp4">
                             您的浏览器不支持视频标签。
                         </video>
