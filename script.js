@@ -9,8 +9,8 @@ async function loadData() {
     }
 }
 
-function getIconUrl(screenName) {
-    return `https://r4.dlozs.top/images/${screenName}.jpg`;
+function getIconUrl(userName) {
+    return `https://r4.dlozs.top/images/${userName}.jpg`;
 }
 
 function getImageUrl(screenName, tweetId, index, createdAt) {
@@ -43,7 +43,7 @@ async function loadUsers() {
         const card = document.createElement('div');
         card.className = 'user-card';
         card.innerHTML = `
-            <img src="${getIconUrl(screenName)}" alt="${user.name}'s avatar">
+            <img src="${getIconUrl(user.name)}" alt="${user.name}'s avatar">
             <p>${user.name} (@${screenName})</p>
         `;
         card.onclick = () => {
@@ -82,7 +82,7 @@ async function loadUserTweets() {
 
         tweetDiv.innerHTML = `
             <div class="tweet-header">
-                <img src="${getIconUrl(tweet.screen_name)}" alt="${tweet.name}'s avatar" class="tweet-avatar">
+                <img src="${getIconUrl(tweet.name)}" alt="${tweet.name}'s avatar" class="tweet-avatar">
                 <div>
                     <span class="tweet-user">${tweet.name}</span>
                     <span class="tweet-screenname">@${tweet.screen_name}</span>
