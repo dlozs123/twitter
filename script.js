@@ -9,36 +9,28 @@ async function loadData() {
     }
 }
 
-// 把会导致文件名或 URL 问题的字符替换为下划线，合并重复下划线并去掉首尾下划线/空白
-function sanitizeFileName(name) {
-    if (!name) return '';
-    return String(name)
-        // 替换 Windows/URL 常见的危险字符为下划线（你可以按需增减）
-        .replace(/[\/\\\?\%\*\:\|\"<>\#\&\+\=\;\,]/g, '_')
-        // 合并连续下划线
-        .replace(/_+/g, '_')
-        // 去掉首尾空白
-        .replace(/^\s+|\s+$/g, '')
-        // 去掉首尾下划线
-        .replace(/^_+|_+$/g, '');
-}
-
 function getIconUrl(userName) {
-    const safeName = sanitizeFileName(userName) || 'unknown';
-    // 只对文件名部分进行编码，避免破坏 URL 结构
-    return `https://r4.dlozs.top/images/${encodeURIComponent(safeName)}.jpg`;
+    return `https://r4.dlozs.top/images/${userName}.jpg`;
 }
 
-function getImageUrl(screenName, tweetId, index, createdAt) {
+function getMediaUrl(screenName, tweetId, index, createdAt, mediaItem) {
     const date = new Date(createdAt);
     const yyyy = date.getFullYear();
     const mm = String(date.getMonth() + 1).padStart(2, '0');
     const dd = String(date.getDate()).padStart(2, '0');
     const dateStr = `${yyyy}${mm}${dd}`;
 
-    const safeScreen = sanitizeFileName(screenName || 'unknown');
-    const fileName = `${safeScreen}_${tweetId}_photo_${index + 1}_${dateStr}.jpg`;
-    return `https://r3.dlozs.top/${encodeURIComponent(fileName)}`;
+    let ext = 'jpg'; // 默认
+    if (mediaItem.type === 'video') {
+        ext = 'mp4';
+    } else if (mediaItem.original) {
+        const match = mediaItem.original.match(/format=([^&]+)/);
+        if (match) {
+            ext = match[1];
+        }
+    }
+
+    return `https://r3.dlozs.top/${screenName}_${tweetId}_photo_${index + 1}_${dateStr}.${ext}`;
 }
 
 function formatDate(createdAt) {
@@ -92,9 +84,18 @@ async function loadUserTweets() {
         let mediaHtml = '';
         if (tweet.media && tweet.media.length > 0) {
             mediaHtml = '<div class="tweet-media">';
-            tweet.media.forEach((media, index) => {
-                const imgUrl = getImageUrl(tweet.screen_name, tweet.id, index, tweet.created_at);
-                mediaHtml += `<img src="${imgUrl}" alt="Tweet media ${index + 1}">`;
+            tweet.media.forEach((mediaItem, index) => {
+                const mediaUrl = getMediaUrl(tweet.screen_name, tweet.id, index, tweet.created_at, mediaItem);
+                if (mediaItem.type === 'video') {
+                    mediaHtml += `
+                        <video controls width="100%" alt="Tweet video ${index + 1}">
+                            <source src="${mediaUrl}" type="video/mp4">
+                            您的浏览器不支持视频标签。
+                        </video>
+                    `;
+                } else {
+                    mediaHtml += `<img src="${mediaUrl}" alt="Tweet media ${index + 1}">`;
+                }
             });
             mediaHtml += '</div>';
         }
