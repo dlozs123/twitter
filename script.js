@@ -9,33 +9,23 @@ async function loadData() {
     }
 }
 
-// 定制版文件名清理函数
+// 把会导致文件名或 URL 问题的字符替换为下划线，合并重复下划线并去掉首尾下划线/空白
 function sanitizeFileName(name) {
     if (!name) return '';
-
-    // 1. 临时保留颜文字里的 : （例如 "(:3」∠)"）
-    let safe = name.replace(/\(:/g, '<<COLON>>');
-
-    // 2. 替换必须非法的字符 (Windows/macOS 不允许的)
-    safe = safe.replace(/[\/\\\?\%\*\|\\"<>\#\&\+\=\;\,]/g, '_');
-
-    // 3. 其他冒号替换为 _
-    safe = safe.replace(/:/g, '_');
-
-    // 4. 恢复颜文字里的 :
-    safe = safe.replace(/<<COLON>>/g, ':');
-
-    // 5. 合并下划线，去掉首尾空白/下划线
-    safe = safe
+    return String(name)
+        // 替换 Windows/URL 常见的危险字符为下划线（你可以按需增减）
+        .replace(/[\/\\\?\%\*\:\|\"<>\#\&\+\=\;\,]/g, '_')
+        // 合并连续下划线
         .replace(/_+/g, '_')
+        // 去掉首尾空白
         .replace(/^\s+|\s+$/g, '')
+        // 去掉首尾下划线
         .replace(/^_+|_+$/g, '');
-
-    return safe;
 }
 
 function getIconUrl(userName) {
     const safeName = sanitizeFileName(userName) || 'unknown';
+    // 只对文件名部分进行编码，避免破坏 URL 结构
     return `https://r4.dlozs.top/images/${encodeURIComponent(safeName)}.jpg`;
 }
 
@@ -53,13 +43,7 @@ function getImageUrl(screenName, tweetId, index, createdAt) {
 
 function formatDate(createdAt) {
     const date = new Date(createdAt);
-    return date.toLocaleString('zh-CN', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
+    return date.toLocaleString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
 async function loadUsers() {
