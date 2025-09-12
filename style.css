@@ -11,6 +11,17 @@ header {
     color: white;
     padding: 10px;
     text-align: center;
+    position: fixed; /* 改为固定定位 */
+    top: 0; /* 固定在顶部 */
+    left: 0;
+    width: 100%; /* 占满宽度 */
+    z-index: 1002; /* 确保在最上层 */
+    height: 60px; /* 确保 header 高度固定 */
+}
+
+header h1 {
+    margin: 0;
+    line-height: 40px; /* 垂直居中文本 */
 }
 
 .user-grid {
@@ -18,6 +29,7 @@ header {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 20px;
     padding: 20px;
+    margin-top: 70px; /* 留出 header 空间 */
 }
 
 .user-card {
